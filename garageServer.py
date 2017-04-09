@@ -10,7 +10,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         path = (self.path.lower())
 
         result = self.processRequest(path) 
-        print("processed request") 
         
         #send the response:
         self.send_response(result['response'])
@@ -29,6 +28,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
             pin = PiPin() 
             pin.send_signal()
+            pin.cleanup()
 
             result = self.success(path) 
             return result

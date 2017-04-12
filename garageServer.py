@@ -8,19 +8,35 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         print("do Get") 
         #get path from the url ie: '/close' 
         path = (self.path.lower())
-
-        result = self.processRequest(path) 
-        
-        #send the response:
-        self.send_response(result['response'])
-        self.send_header("Content-type", 'application/json' )
-        self.send_header("Content-Length", len( json.dumps(result ) )  )
+        if path != "/door":
+            return
+        html = self.html()
+        self.set_headers(html)
+        self.write_response(html)
+ 
+    def do_POST(self):
+        result = self.processRequest(self.path.lower())
+        html = self.html('success')
+        self.set_headers(html)
+        self.write_response(html) 
+    
+    def set_headers(self, html):
+        self.send_response(200)
+        self.send_header("Content-type", 'text/html' )
+        self.send_header("Content-Length", len(html) ) 
         self.send_header("Last-Modified", self.date_time_string())
         self.end_headers()
-        
-        #cast output to bytes and write to file
-        self.wfile.write(bytes(json.dumps(result), 'UTF-8') )
     
+    def write_response(self, html):
+        #send the response:
+        #cast output to bytes and write to file
+        self.wfile.write(bytes(html, 'UTF-8') )
+       
+    def html(self, status=''):
+        form = '<form action="/door" method="POST"><input type="submit" value="Open Door" style="font-size:30px;"></form>'
+        html = "<!DOCTYPE html><html><body><h3>"+status+"</h3><h1>click to open</h1>"+form+"</body></html>"
+        return html
+        
     def processRequest(self, path):
         print("process request for path: " + path)
 
